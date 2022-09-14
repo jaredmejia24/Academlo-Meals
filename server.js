@@ -1,10 +1,14 @@
 const { app } = require("./app");
+const { initModels } = require("./models/initModels");
 const { db } = require("./utils/database.utils");
 
 const startServer = async () => {
   try {
     await db.authenticate;
 
+    //establish relations
+    initModels();
+    
     await db.sync;
 
     // Set server to listen
