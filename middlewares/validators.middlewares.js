@@ -12,9 +12,7 @@ const checkValidations = (req, res, next) => {
 
     const error = new Error(message);
 
-    return res.status(400).json({
-      error,
-    });
+    return res.status(400).json(error);
   }
 
   next();
@@ -42,6 +40,13 @@ const signUpValidators = [
     .withMessage("Password cannot be empty")
     .isLength({ min: 8 })
     .withMessage("Password must be at least 8 characters"),
+  body("role")
+    .notEmpty()
+    .withMessage("role must not be empty")
+    .isString()
+    .withMessage("role must be a string")
+    .isLength({ min: 4 })
+    .withMessage("role must have at least 4 characters"),
   checkValidations,
 ];
 
@@ -81,4 +86,58 @@ const patchUserValidations = [
   checkValidations,
 ];
 
-module.exports = { signUpValidators, loginValidations, patchUserValidations };
+const createRestaurantValidators = [
+  body("name")
+    .notEmpty()
+    .withMessage("name must no be empty")
+    .isString()
+    .withMessage("name must be a string"),
+  body("address")
+    .notEmpty()
+    .withMessage("address must no be empty")
+    .isString()
+    .withMessage("address must be a string"),
+  body("rating")
+    .notEmpty()
+    .withMessage("rating must no be empty")
+    .isNumeric("")
+    .withMessage("rating must be a number"),
+  checkValidations,
+];
+
+const updateRestaurantValidators = [
+  body("name")
+    .notEmpty()
+    .withMessage("name must no be empty")
+    .isString()
+    .withMessage("name must be a string"),
+  body("address")
+    .notEmpty()
+    .withMessage("address must no be empty")
+    .isString()
+    .withMessage("address must be a string"),
+  checkValidations,
+];
+
+const createReviewValidators = [
+  body("comment")
+    .notEmpty()
+    .withMessage("comment must not be empty")
+    .isString()
+    .withMessage("must be a string"),
+  body("rating")
+    .notEmpty()
+    .withMessage("rating must no be empty")
+    .isNumeric("")
+    .withMessage("rating must be a number"),
+  checkValidations,
+];
+
+module.exports = {
+  signUpValidators,
+  loginValidations,
+  patchUserValidations,
+  createRestaurantValidators,
+  updateRestaurantValidators,
+  createReviewValidators,
+};

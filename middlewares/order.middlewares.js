@@ -12,12 +12,21 @@ const orderExist = catchAsync(async (req, res, next) => {
 
   const order = await Order.findOne({
     where: { id },
-    include: [{ model: Meal, include: Restaurant }],
+    include: {
+      model: Meal,
+      required: false,
+      where: { status: "active" },
+      include: {
+        model: Restaurant,
+        where: { status: "active" },
+        require: false,
+      },
+    },
   });
 
   if (!order) {
     const error = new Error("Order doesnt exist");
-    return res.status(404).json({ error });
+    return res.status(404).json(error);
   }
 
   req.order = order;
