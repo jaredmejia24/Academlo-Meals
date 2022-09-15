@@ -15,16 +15,21 @@ const { Error } = require("../utils/error.class");
 dotenv.config({ path: "./config.env" });
 
 const createUser = catchAsync(async (req, res, next) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, role } = req.body;
+
+  if (role !== "admin" && role !== "normal") {
+    return res.status(400).json({
+      status: "error",
+      message: "Invalid role",
+    });
+  }
 
   const user = await User.findOne({ where: { email } });
 
   //validate if user already exist
   if (user) {
     const error = new Error("User already exist");
-    return res.status(409).json({
-      error,
-    });
+    return res.status(409).json(error);
   }
   // Encrypt the password
   const salt = await bcrypt.genSalt(12);
@@ -34,6 +39,7 @@ const createUser = catchAsync(async (req, res, next) => {
     name: username,
     email,
     password: hashedPassword,
+    role,
   });
 
   // Remove password from response
@@ -59,9 +65,7 @@ const login = catchAsync(async (req, res, next) => {
   // If user doesn't exists or passwords doesn't match, send error
   if (!user || !(await bcrypt.compare(password, user.password))) {
     const error = new Error("Wrong credentials");
-    return res.status(400).json({
-      error,
-    });
+    return res.status(400).json(error);
   }
 
   // Remove password from response
@@ -98,7 +102,7 @@ const updateUser = catchAsync(async (req, res, next) => {
 const deleteUser = catchAsync(async (req, res, next) => {
   const { user } = req;
 
-  await user.update({ status: "disable" });
+  await user.update({ status: "disabled" });
 
   res.status(204).json({ status: "success" });
 });
@@ -108,7 +112,16 @@ const getUserOrders = catchAsync(async (req, res, next) => {
 
   const orders = await Order.findAll({
     where: { userId: sessionUser.id },
-    include: [{ model: Meal, include: Restaurant }],
+    include: {
+      model: Meal,
+      where: { status: "active" },
+      required: false,
+      include: {
+        model: Restaurant,
+        where: { status: "active" },
+        require: false,
+      },
+    },
   });
 
   res.status(200).json({
@@ -122,7 +135,7 @@ const getOneUserOrder = catchAsync(async (req, res, next) => {
 
   if (order.userId !== sessionUser.id) {
     const error = new Error("You are not the owner of this order");
-    return res.status(403).json({ error });
+    return res.status(403).json(error);
   }
 
   res.status(200).json({
