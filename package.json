@@ -17,8 +17,11 @@
   },
   "homepage": "https://github.com/jaredmejia24/Academlo-Meals#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "dotenv": "^16.0.2",
     "express": "^4.18.1",
+    "express-validator": "^6.14.2",
+    "jsonwebtoken": "^8.5.1",
     "nodemon": "^2.0.19",
     "pg": "^8.8.0",
     "pg-hstore": "^2.3.4",

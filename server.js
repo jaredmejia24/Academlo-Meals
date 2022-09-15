@@ -4,12 +4,12 @@ const { db } = require("./utils/database.utils");
 
 const startServer = async () => {
   try {
-    await db.authenticate;
+    await db.authenticate();
 
     //establish relations
     initModels();
-    
-    await db.sync;
+
+    await db.sync();
 
     // Set server to listen
     const PORT = 4000;
