@@ -1,5 +1,5 @@
 const { body, validationResult } = require("express-validator");
-const { Error } = require("../utils/error.class");
+const { AppError } = require("../utils/AppError.utils");
 
 const checkValidations = (req, res, next) => {
   const errors = validationResult(req);
@@ -10,9 +10,7 @@ const checkValidations = (req, res, next) => {
 
     const message = errorMessages.join(". ");
 
-    const error = new Error(message);
-
-    return res.status(400).json(error);
+    return next(new AppError(message, 400));
   }
 
   next();
@@ -146,6 +144,19 @@ const createMealValidators = [
   checkValidations,
 ];
 
+const createOrderValidators = [
+  body("quantity")
+    .notEmpty()
+    .withMessage("quantity must not be empty")
+    .isNumeric()
+    .withMessage("quantity must be a number"),
+  body("mealId")
+    .notEmpty()
+    .withMessage("mealId must not be empty")
+    .isNumeric()
+    .withMessage("mealId must be a number"),
+];
+
 module.exports = {
   signUpValidators,
   loginValidations,
@@ -154,4 +165,5 @@ module.exports = {
   updateRestaurantValidators,
   createReviewValidators,
   createMealValidators,
+  createOrderValidators,
 };

@@ -10,7 +10,7 @@ const dotenv = require("dotenv");
 
 //utils
 const { catchAsync } = require("../utils/catchAsync");
-const { Error } = require("../utils/error.class");
+const { AppError } = require("../utils/AppError.utils");
 
 dotenv.config({ path: "./config.env" });
 
@@ -28,8 +28,7 @@ const createUser = catchAsync(async (req, res, next) => {
 
   //validate if user already exist
   if (user) {
-    const error = new Error("User already exist");
-    return res.status(409).json(error);
+    return next(new AppError("User doesnt exist", 409));
   }
   // Encrypt the password
   const salt = await bcrypt.genSalt(12);
@@ -64,8 +63,7 @@ const login = catchAsync(async (req, res, next) => {
   // Compare passwords (entered password vs db password)
   // If user doesn't exists or passwords doesn't match, send error
   if (!user || !(await bcrypt.compare(password, user.password))) {
-    const error = new Error("Wrong credentials");
-    return res.status(400).json(error);
+    return next(new AppError("Wrong credentials", 400));
   }
 
   // Remove password from response
@@ -114,11 +112,9 @@ const getUserOrders = catchAsync(async (req, res, next) => {
     where: { userId: sessionUser.id },
     include: {
       model: Meal,
-      where: { status: "active" },
       required: false,
       include: {
         model: Restaurant,
-        where: { status: "active" },
         require: false,
       },
     },
@@ -134,8 +130,7 @@ const getOneUserOrder = catchAsync(async (req, res, next) => {
   const { sessionUser, order } = req;
 
   if (order.userId !== sessionUser.id) {
-    const error = new Error("You are not the owner of this order");
-    return res.status(403).json(error);
+    return next(new AppError("Wrong credentials", 403));
   }
 
   res.status(200).json({

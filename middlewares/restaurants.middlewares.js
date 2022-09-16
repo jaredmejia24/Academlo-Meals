@@ -4,7 +4,7 @@ const { Review } = require("../models/reviews.model");
 
 //utils
 const { catchAsync } = require("../utils/catchAsync");
-const { Error } = require("../utils/error.class");
+const { AppError } = require("../utils/AppError.utils");
 
 const restaurantExist = catchAsync(async (req, res, next) => {
   const { id } = req.params;
@@ -15,8 +15,7 @@ const restaurantExist = catchAsync(async (req, res, next) => {
   });
 
   if (!restaurant) {
-    const error = new Error("restaurant doesnt exist");
-    return res.status(404).json(error);
+    return next(new AppError("restaurant doesnt exist", 404));
   }
 
   req.restaurant = restaurant;
@@ -31,8 +30,7 @@ const restaurantIdExistReview = catchAsync(async (req, res, next) => {
   });
 
   if (!restaurant) {
-    const error = new Error("restaurant doesnt exist");
-    return res.status(404).json(error);
+    return next(new AppError("restaurant doesnt exist", 404));
   }
 
   req.restaurantId = restaurantId;

@@ -6,7 +6,7 @@ const { User } = require("../models/user.model");
 
 //utils
 const { catchAsync } = require("../utils/catchAsync");
-const { Error } = require("../utils/error.class");
+const { AppError } = require("../utils/AppError.utils");
 
 dotenv.config({ path: "./config.env" });
 
@@ -25,8 +25,7 @@ const protectSession = catchAsync(async (req, res, next) => {
 
   // Check if the token was sent or not
   if (!token) {
-    const error = new Error("Invalid session");
-    return res.status(403).json(error);
+    return next(new AppError("Invalid session", 403));
   }
 
   // Verify the token
@@ -38,8 +37,9 @@ const protectSession = catchAsync(async (req, res, next) => {
   });
 
   if (!user) {
-    const error = new Error("The owner of the session is no longer active");
-    return res.status(403).json(error);
+    return next(
+      new AppError("The owner of the session is no longer active", 403)
+    );
   }
 
   // Grant access
@@ -53,8 +53,7 @@ const protectUsersAccount = (req, res, next) => {
 
   // If the users (ids) don't match, send an error, otherwise continue
   if (sessionUser.id !== user.id) {
-    const error = new Error("You are not the owner of this account");
-    return res.status(403).json(error);
+    return next(new AppError("You are not the owner of this account", 403));
   }
 
   // If the ids match, grant access
@@ -65,10 +64,12 @@ const protectAdmin = (req, res, next) => {
   const { sessionUser } = req;
 
   if (sessionUser.role !== "admin") {
-    const error = new Error(
-      "You do not have the enough authorization to continue this action"
+    return next(
+      new AppError(
+        "You do not have the enough authorization to continue this action",
+        403
+      )
     );
-    return res.status(403).json(error);
   }
 
   next();
@@ -78,15 +79,26 @@ const protectReviewOwner = (req, res, next) => {
   const { sessionUser, review } = req;
 
   if (sessionUser.id !== review.userId) {
-    const error = new Error("You are not the owner of this review");
-    return res.status(403).json(error);
+    return next(new AppError("You are not the owner of this review", 403));
   }
 
   next();
 };
+
+const protectUsersOrders = (req, res, next) => {
+  const { sessionUser, order } = req;
+
+  if (sessionUser.id !== order.userId) {
+    return next(new AppError("You are not the owner of this order", 403));
+  }
+
+  next();
+};
+
 module.exports = {
   protectSession,
   protectUsersAccount,
   protectAdmin,
   protectReviewOwner,
+  protectUsersOrders,
 };
