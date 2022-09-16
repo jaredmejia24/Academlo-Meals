@@ -2,7 +2,7 @@ const { User } = require("../models/user.model");
 
 //utils
 const { catchAsync } = require("../utils/catchAsync");
-const { Error } = require("../utils/error.class");
+const { AppError } = require("../utils/AppError.utils");
 
 const userExist = catchAsync(async (req, res, next) => {
   const { id } = req.params;
@@ -10,8 +10,7 @@ const userExist = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ where: { id, status: "active" } });
 
   if (!user) {
-    const error = new Error("User doesnt exist");
-    return res.status(404).json(error);
+    return next(new AppError("User doesnt exist", 404));
   }
 
   req.user = user;

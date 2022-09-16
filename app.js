@@ -1,4 +1,4 @@
-const { Error } = require("./utils/error.class");
+const { Error } = require("./utils/AppError.utils");
 
 const express = require("express");
 
@@ -6,6 +6,7 @@ const express = require("express");
 const { usersRouter } = require("./routes/users.routes");
 const { restaurantsRouter } = require("./routes/restaurants.routes");
 const { mealsRouter } = require("./routes/meals.routes");
+const { ordersRouter } = require("./routes/orders.routes");
 
 //start server
 const app = express();
@@ -17,12 +18,19 @@ app.use(express.json());
 app.use("/api/v1/users", usersRouter);
 app.use("/api/v1/restaurants", restaurantsRouter);
 app.use("/api/v1/meals", mealsRouter);
+app.use("/api/v1/orders", ordersRouter);
 
 //catch global errors
 app.use((error, req, res, next) => {
+  const statusCode = error.statusCode || 500;
+  const status = error.status || "fail";
   console.log(error);
-  const errorObject = new Error(error);
-  return res.status(400).json(errorObject);
+
+  res.status(statusCode).json({
+    status,
+    message: error.message,
+    statusCode: error.statusCode,
+  });
 });
 
 // Catch non-existing endpoints

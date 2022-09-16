@@ -5,7 +5,7 @@ const { Restaurant } = require("../models/restaurants.model");
 
 //utils
 const { catchAsync } = require("../utils/catchAsync");
-const { Error } = require("../utils/error.class");
+const { AppError } = require("../utils/AppError.utils");
 
 const orderExist = catchAsync(async (req, res, next) => {
   const { id } = req.params;
@@ -15,22 +15,29 @@ const orderExist = catchAsync(async (req, res, next) => {
     include: {
       model: Meal,
       required: false,
-      where: { status: "active" },
       include: {
         model: Restaurant,
-        where: { status: "active" },
         require: false,
       },
     },
   });
 
   if (!order) {
-    const error = new Error("Order doesnt exist");
-    return res.status(404).json(error);
+    return next(new AppError("Order doesnt exist", 404));
   }
 
   req.order = order;
   next();
 });
 
-module.exports = { orderExist };
+const orderStatusActive = (req, res, next) => {
+  const { order } = req;
+
+  if (order.status !== "active") {
+    return next(new AppError("order status was completed or cancelled"));
+  }
+
+  next();
+};
+
+module.exports = { orderExist, orderStatusActive };

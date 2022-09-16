@@ -3,7 +3,7 @@ const { Review } = require("../models/reviews.model");
 
 //utils
 const { catchAsync } = require("../utils/catchAsync");
-const { Error } = require("../utils/error.class");
+const { AppError } = require("../utils/AppError.utils");
 
 const reviewExist = catchAsync(async (req, res, next) => {
   const { id } = req.params;
@@ -11,8 +11,7 @@ const reviewExist = catchAsync(async (req, res, next) => {
   const review = await Review.findOne({ where: { id, status: "active" } });
 
   if (!review) {
-    const error = new Error("Review doesnt exist");
-    return res.status(404).json(error);
+    return next(new AppError("Review doesnt exist", 404));
   }
 
   req.review = review;
