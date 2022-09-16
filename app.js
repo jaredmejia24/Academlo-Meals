@@ -5,6 +5,7 @@ const express = require("express");
 //import routers
 const { usersRouter } = require("./routes/users.routes");
 const { restaurantsRouter } = require("./routes/restaurants.routes");
+const { mealsRouter } = require("./routes/meals.routes");
 
 //start server
 const app = express();
@@ -15,6 +16,7 @@ app.use(express.json());
 //define endpoints
 app.use("/api/v1/users", usersRouter);
 app.use("/api/v1/restaurants", restaurantsRouter);
+app.use("/api/v1/meals", mealsRouter);
 
 //catch global errors
 app.use((error, req, res, next) => {

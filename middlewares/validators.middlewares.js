@@ -133,6 +133,19 @@ const createReviewValidators = [
   checkValidations,
 ];
 
+const createMealValidators = [
+  body("name")
+    .notEmpty()
+    .withMessage("name must not be empty")
+    .isString("name must be an string"),
+  body("price")
+    .notEmpty()
+    .withMessage("price must not be empty")
+    .isNumeric()
+    .withMessage("price must be a number"),
+  checkValidations,
+];
+
 module.exports = {
   signUpValidators,
   loginValidations,
@@ -140,4 +153,5 @@ module.exports = {
   createRestaurantValidators,
   updateRestaurantValidators,
   createReviewValidators,
+  createMealValidators,
 };
