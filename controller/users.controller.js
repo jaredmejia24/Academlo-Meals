@@ -28,7 +28,7 @@ const createUser = catchAsync(async (req, res, next) => {
 
   //validate if user already exist
   if (user) {
-    return next(new AppError("User doesnt exist", 409));
+    return next(new AppError("User already exist", 409));
   }
   // Encrypt the password
   const salt = await bcrypt.genSalt(12);
