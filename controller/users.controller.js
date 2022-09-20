@@ -18,10 +18,7 @@ const createUser = catchAsync(async (req, res, next) => {
   const { username, email, password, role } = req.body;
 
   if (role !== "admin" && role !== "normal") {
-    return res.status(400).json({
-      status: "error",
-      message: "Invalid role",
-    });
+    return next(new AppError("Invalid role", 400));
   }
 
   const user = await User.findOne({ where: { email } });
