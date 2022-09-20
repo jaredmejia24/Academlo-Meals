@@ -15,7 +15,7 @@ const sendErrorDev = (error, req, res) => {
 const sendErrorProd = (error, req, res) => {
   res.status(error.statusCode).json({
     status: error.status,
-    message: error.message,
+    message: error.message || "something went wrong",
   });
 };
 
@@ -37,7 +37,7 @@ const globalErrorHandler = (error, req, res, next) => {
     let err = { ...error };
 
     if (error.name === "JsonWebTokenError") err = invalidTokenError();
-    else if(error.name === "TokenExpiredError") err = tokenExpiredError();
+    else if (error.name === "TokenExpiredError") err = tokenExpiredError();
 
     sendErrorProd(err, req, res);
   }
