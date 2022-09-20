@@ -8,6 +8,9 @@ const { restaurantsRouter } = require("./routes/restaurants.routes");
 const { mealsRouter } = require("./routes/meals.routes");
 const { ordersRouter } = require("./routes/orders.routes");
 
+//import error controller
+const { globalErrorHandler } = require("./controller/error.controller");
+
 //start server
 const app = express();
 
@@ -21,17 +24,7 @@ app.use("/api/v1/meals", mealsRouter);
 app.use("/api/v1/orders", ordersRouter);
 
 //catch global errors
-app.use((error, req, res, next) => {
-  const statusCode = error.statusCode || 500;
-  const status = error.status || "fail";
-  console.log(error);
-
-  res.status(statusCode).json({
-    status,
-    message: error.message,
-    statusCode: error.statusCode,
-  });
-});
+app.use(globalErrorHandler);
 
 // Catch non-existing endpoints
 app.all("*", (req, res) => {
